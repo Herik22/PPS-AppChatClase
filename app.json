@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "appJuegos",
-    "slug": "appJuegos",
+    "name": "AppConversandoEnElAula",
+    "slug": "AppConversandoEnElAula",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#771FB3"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,13 +17,17 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.arismendyuribe.appchat",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      }
+        "backgroundColor": "#771FB3"
+      },
+      "package": "com.arismendyuribe.appchat",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
