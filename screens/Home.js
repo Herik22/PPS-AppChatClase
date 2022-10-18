@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StatusBar,
 } from "react-native";
-import React, { Component, useState } from "react";
+import React, { Component, useState, useEffect } from "react";
 import { useLogin } from "../context/LoginProvider";
 import fondo from "../assets/fondos/fondo.png";
 import ColorsPPS from "../utils/ColorsPPS";
@@ -14,12 +14,33 @@ import LoadingScreen from "../utils/loadingScreen";
 import Salon4a from "../assets/home/fondo4A.png";
 import Salon4b from "../assets/home/fondo4B.png";
 import { Entypo, FontAwesome, Fontisto } from "@expo/vector-icons";
+import { authentication, db } from "../firebase-config";
+import { getDoc, doc } from "firebase/firestore";
 
 export default Home = (props) => {
   const { navigation } = props;
-  const { Email_, isLogIn, setIsLogIn, setSalaA } = useLogin();
+  const { Email_, isLogIn, setIsLogIn, setSalaA, setProfile } = useLogin();
   const [loading, setLoading] = useState(false);
   const [msjLoading, setMsjLoading] = useState("Cerrando Sesión");
+
+  const colectionUsers = "users";
+  useEffect(() => {
+    //console.log(authentication.currentUser);
+    updateCurrentUser(authentication.currentUser.uid, setProfile);
+  }, []);
+  const updateCurrentUser = async (uid, setProfile) => {
+    const docRef = doc(db, colectionUsers, uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      let auxUser = docSnap.data();
+      setProfile(auxUser);
+      console.log("actualizado el profile", auxUser);
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+      return false;
+    }
+  };
 
   const btnHome = (tittleColor, bgColor, tittle, img, chatA = true) => {
     return (

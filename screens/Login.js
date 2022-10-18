@@ -7,6 +7,7 @@ import {
   Dimensions,
   Image,
   StyleSheet,
+  TurboModuleRegistry,
 } from "react-native";
 import {
   Ionicons,
@@ -23,6 +24,7 @@ import ModalLogin from "../components/login/modalLogin";
 import ColorsPPS from "../utils/ColorsPPS";
 import LoadingScreen from "../utils/loadingScreen";
 import { LinearGradient } from "expo-linear-gradient";
+import { authentication, db } from "../firebase-config";
 
 const Login = (props) => {
   const { setisFinishSplash, setIsLogIn, setProfile } = useLogin();
@@ -129,27 +131,37 @@ const Login = (props) => {
       console.log("error TRAYENDO en el storage" + e);
     }
   };
-  const validarCredencial = (values) => {
-    let retorno = false;
-    if (users.length > 0) {
-      JSON.parse(users).forEach((element) => {
-        if (
-          element.correo == values.email &&
-          element.clave == values.password
-        ) {
-          setProfile(element);
-          retorno = true;
-        }
-      });
-    } else {
-      console.log("LOS USUARIOS ESTAN VACIOS!!!");
-    }
 
-    return retorno;
+  const login = (values, actions = false) => {
+    try {
+      setLoading(true);
+      authentication
+        .signInWithEmailAndPassword(values.email, values.password)
+        .then((_userCredentials) => {
+          actions && actions.resetForm();
+          setIsLogIn(true);
+        })
+        .catch((error) => {
+          switch (error.code) {
+            case "auth/user-not-found":
+              Alert.alert("¡Ops!", "¡Usuario y/o Contraseña incorrectos!");
+              break;
+            case "auth/wrong-password":
+              Alert.alert("¡Ops!", "¡Usuario y/o Contraseña incorrectos!");
+              break;
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } catch (error) {
+      setLoading(false);
+      alert(error);
+    }
   };
   const onPressLogIn = (values) => {
     setLoading(true);
-    if (validarCredencial(values)) {
+    if (TurboModuleRegistry) {
       setEmail_(values.email);
       setTimeout(() => {
         setIsLogIn(true);
@@ -219,7 +231,7 @@ const Login = (props) => {
         setPassword("");
         setLoading(false);
       }, 2500); */
-      onPressLogIn({ email: "invitado1@gmail.com", password: "invitado1234" });
+      login({ email: `invitado${numero}@gmail.com`, password: "invitado1234" });
     };
     return (
       <TouchableOpacity
@@ -280,7 +292,7 @@ const Login = (props) => {
         initialValues={{ email: email, password: "" }}
         validationSchema={LoginValidation}
         onSubmit={(values, actions) => {
-          onPressLogIn(values);
+          login(values, actions);
           actions.resetForm();
         }}
       >
@@ -413,8 +425,7 @@ const Login = (props) => {
           width: Dimensions.get("window").width * 0.8,
           height: Dimensions.get("window").height * 0.3,
           flex: 0.4,
-          marginTop: 20,
-          margin: 6,
+          marginTop: 50,
           borderRadius: 20,
           height: "100%",
           alignSelf: "center",
@@ -422,7 +433,7 @@ const Login = (props) => {
           alignContent: "center",
           alignItems: "center",
           backgroundColor: "aqua",
-          padding: 10,
+          padding: 5,
         }}
       >
         <View

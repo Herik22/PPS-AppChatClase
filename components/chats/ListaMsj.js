@@ -31,9 +31,10 @@ const ListaMsj = (props) => {
       <View
         style={{
           flex: 1,
-          height: Dimensions.get("window").height * 0.08,
+          height: Dimensions.get("window").height * 0.1,
           width: Dimensions.get("window").width * 0.5,
           borderWidth: 1,
+          borderColor: "white",
           borderTopLeftRadius: profile.id == idUser ? 20 : 0,
           borderTopRightRadius: profile.id == idUser ? 0 : 20,
           borderBottomLeftRadius: 20,
@@ -46,7 +47,7 @@ const ListaMsj = (props) => {
           alignSelf: profile.id == idUser ? "flex-end" : "flex-start",
           backgroundColor: salaA
             ? profile.id == idUser
-              ? "aqua"
+              ? "#67E1CF"
               : "pink"
             : profile.id == idUser
             ? ColorsPPS.moradoOscuro
@@ -54,7 +55,7 @@ const ListaMsj = (props) => {
         }}
       >
         <View style={{ position: "absolute", top: 3, left: 10 }}>
-          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+          <Text style={{ fontWeight: "bold", fontSize: 15, marginTop: 0 }}>
             {profile.id != idUser ? autor : ""}
           </Text>
         </View>
@@ -62,8 +63,9 @@ const ListaMsj = (props) => {
           <Text
             style={{
               fontSize: 13,
-              color: profile.id == idUser ? "gray" : "black",
+              color: profile.id == idUser ? ColorsPPS.violeta : "black",
               fontWeight: "bold",
+              marginTop: 2,
             }}
           >
             {" "}

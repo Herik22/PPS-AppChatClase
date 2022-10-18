@@ -5,13 +5,26 @@ import {
   Dimensions,
   TouchableOpacity,
   StatusBar,
+  Vibration,
 } from "react-native";
-import React, { Component, useState, useCallback } from "react";
+import React, { Component, useState, useCallback, useEffect } from "react";
 import ColorsPPS from "../utils/ColorsPPS";
 import LoadingScreen from "../utils/loadingScreen";
 import ListaMsj from "../components/chats/ListaMsj";
 import { useFocusEffect } from "@react-navigation/core";
-import firebase from "../DataBase/Firebase";
+import { db, app } from "../firebase-config";
+import { MaterialIcons } from "@expo/vector-icons";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  setDoc,
+  doc,
+  addDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { useLogin } from "../context/LoginProvider";
 import { Input } from "@rneui/base";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -21,38 +34,43 @@ const ChatScreen = () => {
   const [loading, setLoading] = useState(false);
   const [msjLoading, setMsjLoading] = useState("Cargando mensajes del aula");
   const [msjs, setMsjs] = useState([]);
+  const [errorLongTxt, setErrorLongTxt] = useState(false);
   const [textoChat, setTextoChat] = useState("");
   const nameCollection = salaA ? "msjs4a" : "msjs4b";
 
-  useFocusEffect(
+  /*useFocusEffect(
     useCallback(() => {
-      const TraerMsj = async () => {
-        firebase.db
-          .collection(nameCollection)
-          .orderBy("fecha", "asc")
-          .onSnapshot((querySnapshot) => {
-            const msjsCollection = [];
-            querySnapshot.docs.forEach((doc) => {
-              const { autor, fecha, fechaCorta, txt, idUser } = doc.data(); // destructuro el doc
-              const id_ = doc.id;
-              msjsCollection.push({
-                id: id_,
-                autor: autor,
-                txt: txt,
-                fecha: fecha,
-                fechaCorta: fechaCorta,
-                idUser: idUser, // id del DOCUMENTO
-              });
-            });
-            setMsjs(msjsCollection);
-          });
-      };
-
-      TraerMsj();
+      TraerMsj2();
     }, [])
-  );
+  );*/
 
-  const crearMsj = () => {
+  useEffect(() => {
+    TraerMsj2();
+  }, []);
+  const TraerMsj2 = async () => {
+    const msjRef = collection(db, nameCollection);
+    /* PRUEBA */
+    const q2 = query(msjRef, orderBy("fecha", "asc"), limit(10));
+    const unsubscribe = onSnapshot(q2, (querySnapshot) => {
+      const msjsCollection = [];
+      querySnapshot.forEach((doc) => {
+        const { autor, fecha, fechaCorta, txt, idUser } = doc.data();
+        const id_ = doc.id;
+        msjsCollection.push({
+          id: id_,
+          autor: autor,
+          txt: txt,
+          fecha: fecha,
+          fechaCorta: fechaCorta,
+          idUser: idUser, // id del DOCUMENTO
+        });
+      });
+      setMsjs(msjsCollection);
+    });
+  };
+
+  const crearMsj2 = async () => {
+    console.log("entre");
     let fecha = new Date();
     let hoy = fecha.toLocaleDateString();
     let msj = {
@@ -62,7 +80,8 @@ const ChatScreen = () => {
       autor: `${profile.nombre} (${profile.perfil})`,
       idUser: profile.id,
     };
-    firebase.db.collection(nameCollection).add(msj);
+    await addDoc(collection(db, nameCollection), msj);
+
     setTextoChat("");
   };
   const footerComponent = () => {
@@ -70,10 +89,10 @@ const ChatScreen = () => {
       <View
         style={{
           width: Dimensions.get("window").width * 1,
-          height: 50,
+          //height: 50,
           borderRadius: 20,
-          marginBottom: Dimensions.get("window").height * 0.03,
-          margin: 10,
+          marginBottom: Dimensions.get("window").height * 0.01,
+          marginHorizontal: 10,
           borderTopWidth: 1,
           borderColor: "white",
           paddingTop: 5,
@@ -85,6 +104,11 @@ const ChatScreen = () => {
           onChange={(event) => setTextoChat(event.nativeEvent.text)}
           value={textoChat}
           onChangeText={(text) => {
+            if (text.length > 20) {
+              setErrorLongTxt(true);
+            } else {
+              setErrorLongTxt(false);
+            }
             setTextoChat(text);
           }}
           inputContainerStyle={{
@@ -94,9 +118,9 @@ const ChatScreen = () => {
             borderRadius: 20,
             width: "90%",
             alignSelf: "center",
-            marginBottom: 5,
+            marginBottom: 0,
           }}
-          inputStyle={{ color: "white" }}
+          inputStyle={{ color: "white", fontSize: 15 }}
           rightIcon={
             <TouchableOpacity
               style={{
@@ -110,7 +134,14 @@ const ChatScreen = () => {
                 alignItems: "center",
               }}
               onPress={() => {
-                crearMsj();
+                if (!textoChat.length > 0) {
+                  alert("mensaje vacio");
+                } else if (textoChat.length > 21) {
+                  Vibration.vibrate(5000);
+                  return;
+                } else {
+                  crearMsj2();
+                }
               }}
             >
               <Text
@@ -124,6 +155,29 @@ const ChatScreen = () => {
             width: Dimensions.get("window").height * 0.15,
           }}
         />
+        {errorLongTxt && (
+          <View
+            style={{
+              width: "100%",
+              marginHorizontal: 10,
+              marginBottom: 5,
+              marginTop: -20,
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "center",
+            }}
+          >
+            <MaterialIcons
+              name="error-outline"
+              color={"red"}
+              size={15}
+              style={{ marginRight: 10 }}
+            />
+            <Text style={{ fontSize: 15, color: "red", textAlign: "center" }}>
+              solo puedes envíar un max de 21 caracteres
+            </Text>
+          </View>
+        )}
       </View>
     );
   };

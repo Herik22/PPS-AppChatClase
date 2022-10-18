@@ -2,13 +2,13 @@
   "expo": {
     "name": "AppConversandoEnElAula",
     "slug": "AppConversandoEnElAula",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#771FB3"
+      "backgroundColor":  "#2DBBFF"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -19,7 +19,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.arismendyuribe.appchat",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.4"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,7 +27,7 @@
         "backgroundColor": "#771FB3"
       },
       "package": "com.arismendyuribe.appchat",
-      "versionCode": 1
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/favicon.png"

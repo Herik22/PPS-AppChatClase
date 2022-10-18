@@ -5,6 +5,8 @@ import {
   StatusBar,
   Image,
   Dimensions,
+  Animated,
+  Easing,
 } from "react-native";
 import React, { Component, useEffect, useRef } from "react";
 import { useLogin } from "../context/LoginProvider";
@@ -18,52 +20,111 @@ export default Splash = (props) => {
   useEffect(() => {
     setTimeout(() => {
       navigation.navigate("Login");
-    }, 6500);
+    }, 3500);
+    animate();
   }, []);
+
+  let animatedValue = new Animated.Value(0);
+
+  const animate = () => {
+    animatedValue.setValue(0);
+    Animated.timing(animatedValue, {
+      toValue: 1,
+      duration: 3500,
+      easing: Easing.bounce,
+      useNativeDriver: false,
+    }).start(() => {
+      animate();
+    });
+  };
+
+  const marginLeft = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-400, 0],
+  });
+  const marginRigth = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [400, 0],
+  });
+  const opacity = animatedValue.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 1, 0],
+  });
+  const movingMargin = animatedValue.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 50, 0],
+  });
+  const textSize = animatedValue.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [28, 42, 28],
+  });
+  const rotateX = animatedValue.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: ["0deg", "360deg", "0deg"],
+  });
 
   return (
     <View
       style={{
-        //backgroundColor: "#4F56FF",
-        borderWidth: 0,
+        backgroundColor: ColorsPPS.azul,
         flex: 1,
-        justifyContent: "center",
+        justifyContent: "space-evenly",
         alignContent: "center",
       }}
     >
-      <LinearGradient
-        // Background Linear Gradient
-        colors={["#FBFBFB", "#FBFBFB"]}
+      <View
         style={{
-          flex: 1,
+          width: "100%",
           justifyContent: "center",
           alignContent: "center",
           alignItems: "center",
+          marginTop: 0,
+          borderWidth: 0,
         }}
       >
-        <View
+        <Text
           style={{
-            width: "100%",
-            justifyContent: "center",
-            alignContent: "center",
-            alignItems: "center",
-            marginTop: 30,
-            borderWidth: 0,
+            color: "black",
+            fontSize: 40,
+            textAlign: "center",
+            color: ColorsPPS.morado,
           }}
         >
-          <Text style={{ color: "black", fontSize: 40, textAlign: "center" }}>
-            Herik Arismendy Division 4a
-          </Text>
-        </View>
+          Herik Arismendy Division 4a
+        </Text>
+      </View>
+      <Animated.View
+        style={{
+          width: "100%",
+          height: Dimensions.get("window").height * 0.25,
+          marginLeft: marginLeft,
+        }}
+      >
         <Image
-          source={require("../assets/splash/chat.gif")}
-          resizeMode={"center"}
+          source={require("../assets/logos/iconlogo.png")}
           style={{
-            width: Dimensions.get("window").width * 0.8,
-            //height: Dimensions.get("window").height * 1.2,
+            width: "90%",
+            height: "90%",
+            resizeMode: "contain",
           }}
         />
-      </LinearGradient>
+      </Animated.View>
+      <Animated.View
+        style={{
+          width: "100%",
+          height: Dimensions.get("window").height * 0.25,
+          marginLeft: marginRigth,
+        }}
+      >
+        <Image
+          source={require("../assets/logos/iconlogo.png")}
+          style={{
+            width: "90%",
+            height: "90%",
+            resizeMode: "contain",
+          }}
+        />
+      </Animated.View>
     </View>
   );
 };
